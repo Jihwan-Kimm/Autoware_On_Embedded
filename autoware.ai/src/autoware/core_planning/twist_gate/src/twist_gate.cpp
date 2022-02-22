@@ -38,6 +38,7 @@
 using AwDiagStatus = autoware_system_msgs::DiagnosticStatus;
 
 int zero_flag_ = 0;
+int profiling_routine = 0;
 
 TwistGate::TwistGate(const ros::NodeHandle& nh, const ros::NodeHandle& private_nh)
   : nh_(nh)
@@ -367,6 +368,22 @@ void TwistGate::timerCallback(const ros::TimerEvent& e)
     rubis_vehicle_cmd_pub_.publish(rubis_twist_gate_msg_);
   }
   rubis::sched::task_state_ = TASK_STATE_DONE;
+
+  /* profiling node's routine */
+  if(profiling_routine){
+    // ROS_INFO("#########Twist Profiling routine start#########");
+    struct timespec start_time, end_time;
+    long long sec_diff;
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+    while(1){        
+      for(int i = 9000000; i >= 1; i/=2)
+
+      clock_gettime(CLOCK_MONOTONIC, &end_time);
+      sec_diff = end_time.tv_nsec - start_time.tv_nsec;
+      if(sec_diff >= 30000000)
+        break;
+    }
+  }
 }
 
 void TwistGate::configCallback(const autoware_config_msgs::ConfigTwistFilter& msg)

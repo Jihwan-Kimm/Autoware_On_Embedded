@@ -7,6 +7,7 @@
 static ros::Subscriber sub;
 static ros::Publisher pub, pub_rubis;
 int is_topic_ready = 1;
+int profiling_routine = 0;
 
 void points_cb(const sensor_msgs::PointCloud2ConstPtr& msg){
     sensor_msgs::PointCloud2 msg_with_intensity = *msg;
@@ -26,6 +27,24 @@ void points_cb(const sensor_msgs::PointCloud2ConstPtr& msg){
 
     if(rubis::sched::is_task_ready_ == TASK_NOT_READY) rubis::sched::init_task();
     rubis::sched::task_state_ = TASK_STATE_DONE;
+
+    /* profiling node's routine */
+    if(profiling_routine){
+        // ROS_INFO("#########Lidar Profiling routine start#########");
+        struct timespec start_time, end_time;
+        long long sec_diff;
+        clock_gettime(CLOCK_MONOTONIC, &start_time);
+        while(1){
+            
+            for(int i = 9000000; i >= 1; i/=2)
+
+            clock_gettime(CLOCK_MONOTONIC, &end_time);
+            sec_diff = end_time.tv_nsec - start_time.tv_nsec;
+            if(sec_diff >= 100000000)
+                break;
+        }
+    }
+    
 }
 
 int main(int argc, char** argv){
@@ -67,6 +86,10 @@ int main(int argc, char** argv){
     private_nh.param("/lidar_republisher/task_minimum_inter_release_time", task_minimum_inter_release_time, (double)10);
     private_nh.param("/lidar_republisher/task_execution_time", task_execution_time, (double)10);
     private_nh.param("/lidar_republisher/task_relative_deadline", task_relative_deadline, (double)10);
+
+    /* profiling node's routine */
+    private_nh.param<int>("/lidar_republisher/profiling_routine", profiling_routine, 0);
+    ROS_INFO("profiling routine: %d",profiling_routine);
 
     /* For Task scheduling */
     if(task_profiling_flag) rubis::sched::init_task_profiling(task_response_time_filename);

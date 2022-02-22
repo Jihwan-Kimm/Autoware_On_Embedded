@@ -45,6 +45,9 @@ int main(int argc, char** argv)
   private_nh.param("/twist_gate/task_execution_time", task_execution_time, (double)10);
   private_nh.param("/twist_gate/task_relative_deadline", task_relative_deadline, (double)10);
   private_nh.param<int>("/twist_gate/zero_flag", zero_flag_, 0);
+  /* profiling node's routine */
+  private_nh.param<int>("profiling_routine", profiling_routine, 0);
+  // ROS_INFO("profiling routine: %d",profiling_routine);
 
   TwistGate twist_gate(nh, private_nh);
 

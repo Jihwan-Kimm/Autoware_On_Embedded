@@ -47,6 +47,7 @@
 
 
 extern int zero_flag_;
+extern int profiling_routine;
 
 class TwistGate
 {
