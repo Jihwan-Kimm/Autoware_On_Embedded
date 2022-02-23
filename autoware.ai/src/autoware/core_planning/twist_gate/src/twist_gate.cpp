@@ -373,14 +373,14 @@ void TwistGate::timerCallback(const ros::TimerEvent& e)
   if(profiling_routine){
     // ROS_INFO("#########Twist Profiling routine start#########");
     struct timespec start_time, end_time;
-    long long sec_diff;
+    long long nsec_diff;
     clock_gettime(CLOCK_MONOTONIC, &start_time);
     while(1){        
       for(int i = 9000000; i >= 1; i/=2)
 
       clock_gettime(CLOCK_MONOTONIC, &end_time);
-      sec_diff = end_time.tv_nsec - start_time.tv_nsec;
-      if(sec_diff >= 30000000)
+      nsec_diff = end_time.tv_nsec - start_time.tv_nsec;
+      if(nsec_diff >= 34000000)
         break;
     }
   }
