@@ -32,15 +32,15 @@ void points_cb(const sensor_msgs::PointCloud2ConstPtr& msg){
     if(profiling_routine){
         // ROS_INFO("#########Lidar Profiling routine start#########");
         struct timespec start_time, end_time;
-        long long sec_diff;
+        long long nsec_diff;
         clock_gettime(CLOCK_MONOTONIC, &start_time);
         while(1){
             
             for(int i = 9000000; i >= 1; i/=2)
 
             clock_gettime(CLOCK_MONOTONIC, &end_time);
-            sec_diff = end_time.tv_nsec - start_time.tv_nsec;
-            if(sec_diff >= 100000000)
+            nsec_diff = end_time.tv_nsec - start_time.tv_nsec;
+            if(nsec_diff >= 110000000)
                 break;
         }
     }
