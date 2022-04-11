@@ -4,8 +4,10 @@
 #include <rubis_lib/sched.hpp>
 
 std::string input_topic_, rubis_input_topic_;
-ros::Subscriber rubis_sub_, sub_;
+ros::Subscriber rubis_sub_, sub_, gnss_sub;
 ros::Publisher rubis_pub_, pub_;
+
+geometry_msgs::PoseStampedConstPtr gnss_msg;
 
 inline void relay(const geometry_msgs::PoseStampedConstPtr& msg){
     if(rubis::instance_mode_ && rubis::instance_ != RUBIS_NO_INSTANCE){
@@ -25,10 +27,19 @@ void cb(const geometry_msgs::PoseStampedConstPtr& msg){
     relay(msg);
 }
 
-void rubis_cb(const rubis_msgs::PoseStampedConstPtr& _msg){
-    geometry_msgs::PoseStampedConstPtr msg = boost::make_shared<const geometry_msgs::PoseStamped>(_msg->msg);
+// void rubis_cb(const rubis_msgs::PoseStampedConstPtr& _msg){
+//     geometry_msgs::PoseStampedConstPtr msg = boost::make_shared<const geometry_msgs::PoseStamped>(_msg->msg);
+//     rubis::instance_ = _msg->instance;
+//     relay(msg);
+// }
+
+void gnss_cb(const geometry_msgs::PoseStampedConstPtr& msg){
+    gnss_msg = msg;
+}
+
+void rubis_cb(const rubis_msgs::PoseStampedConstPtr& _msg){    
     rubis::instance_ = _msg->instance;
-    relay(msg);
+    relay(gnss_msg);
 }
 
 int main(int argc, char* argv[]){
@@ -61,6 +72,7 @@ int main(int argc, char* argv[]){
     if(rubis::instance_mode_){
         rubis_input_topic_ = "/rubis_"+input_topic_.substr(1);
         rubis_sub_ = nh.subscribe(rubis_input_topic_, 10, rubis_cb);
+        gnss_sub = nh.subscribe("/gnss_pose", 10, gnss_cb);
         rubis_pub_ = nh.advertise<rubis_msgs::PoseStamped>("/rubis_current_pose", 10);
     }
     else{
