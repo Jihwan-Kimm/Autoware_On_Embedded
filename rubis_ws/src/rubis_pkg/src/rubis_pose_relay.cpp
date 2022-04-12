@@ -4,9 +4,11 @@
 #include <rubis_lib/sched.hpp>
 
 std::string input_topic_, rubis_input_topic_;
-ros::Subscriber rubis_sub_, sub_, gnss_sub;
+ros::Subscriber rubis_sub_, sub_;
 ros::Publisher rubis_pub_, pub_;
 
+ros::Subscriber gnss_sub;
+int gnss_mode;
 geometry_msgs::PoseStampedConstPtr gnss_msg;
 
 inline void relay(const geometry_msgs::PoseStampedConstPtr& msg){
@@ -37,9 +39,15 @@ void gnss_cb(const geometry_msgs::PoseStampedConstPtr& msg){
     gnss_msg = msg;
 }
 
-void rubis_cb(const rubis_msgs::PoseStampedConstPtr& _msg){    
+void rubis_cb(const rubis_msgs::PoseStampedConstPtr& _msg){
     rubis::instance_ = _msg->instance;
-    relay(gnss_msg);
+    if(gnss_mode){
+        relay(gnss_msg);
+    }
+    else{
+        geometry_msgs::PoseStampedConstPtr msg = boost::make_shared<const geometry_msgs::PoseStamped>(_msg->msg);
+        relay(msg);
+    }    
 }
 
 int main(int argc, char* argv[]){
@@ -64,15 +72,18 @@ int main(int argc, char* argv[]){
     nh.param("/pose_relay/task_execution_time", task_execution_time, (double)10);
     nh.param("/pose_relay/task_relative_deadline", task_relative_deadline, (double)10);
     nh.param<int>("/pose_relay/instance_mode", rubis::instance_mode_, 0);
+    nh.param<int>("/pose_relay/gnss_mode", gnss_mode, 0);
 
     input_topic_ = std::string(argv[1]);
 
     std::cout<<"!!! input topic  "<<input_topic_<<std::endl;
 
     if(rubis::instance_mode_){
+        if(gnss_mode)
+            gnss_sub = nh.subscribe("/gnss_pose", 10, gnss_cb);
+
         rubis_input_topic_ = "/rubis_"+input_topic_.substr(1);
-        rubis_sub_ = nh.subscribe(rubis_input_topic_, 10, rubis_cb);
-        gnss_sub = nh.subscribe("/gnss_pose", 10, gnss_cb);
+        rubis_sub_ = nh.subscribe(rubis_input_topic_, 10, rubis_cb);        
         rubis_pub_ = nh.advertise<rubis_msgs::PoseStamped>("/rubis_current_pose", 10);
     }
     else{
