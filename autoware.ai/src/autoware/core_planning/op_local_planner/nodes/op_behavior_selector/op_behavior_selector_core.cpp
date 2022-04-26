@@ -95,7 +95,7 @@ BehaviorGen::BehaviorGen()
   sub_twist_raw = nh.subscribe("/twist_raw", 1, &BehaviorGen::callbackGetTwistRaw, this);
   sub_twist_cmd = nh.subscribe("/twist_cmd", 1, &BehaviorGen::callbackGetTwistCMD, this);
   //sub_ctrl_cmd = nh.subscribe("/ctrl_cmd", 1, &BehaviorGen::callbackGetCommandCMD, this);
-  sub_DistanceToPedestrian = nh.subscribe("/distance_to_pedestrian", 1, &BehaviorGen::callbackDistanceToPedestrian, this);
+  // sub_DistanceToPedestrian = nh.subscribe("/distance_to_pedestrian", 1, &BehaviorGen::callbackDistanceToPedestrian, this);
   sub_IntersectionCondition = nh.subscribe("/intersection_condition", 1, &BehaviorGen::callbackIntersectionCondition, this);
   sub_SprintSwitch = nh.subscribe("/sprint_switch", 1, &BehaviorGen::callbackSprintSwitch, this);
 
@@ -178,6 +178,7 @@ void BehaviorGen::UpdatePlanningParams(ros::NodeHandle& _nh)
   nh.getParam("/op_common_params/minPursuiteDistance", controlParams.minPursuiteDistance );
   nh.getParam("/op_common_params/additionalBrakingDistance", m_PlanningParams.additionalBrakingDistance );
   nh.getParam("/op_common_params/giveUpDistance", m_PlanningParams.giveUpDistance );
+  // nh.getParam("/op_common_params/enableSlowDownOnCurve", m_PlanningParams.enableSlowDownOnCurve );
 
   int iSource = 0;
   _nh.getParam("/op_common_params/mapSource" , iSource);
@@ -204,18 +205,18 @@ void BehaviorGen::UpdatePlanningParams(ros::NodeHandle& _nh)
   m_BehaviorGenerator.m_obstacleWaitingTimeinIntersection = m_obstacleWaitingTimeinIntersection;
 }
 
-void BehaviorGen::callbackDistanceToPedestrian(const std_msgs::Float64& msg){
-  double distance = msg.data;
-  if(distance < m_distanceToPedestrianThreshold){
-    m_PlanningParams.pedestrianAppearence = true;
-  }
-  else
-  {
-    m_PlanningParams.pedestrianAppearence = false;
-  }
-  m_BehaviorGenerator.UpdatePedestrianAppearence(m_PlanningParams.pedestrianAppearence);
-  // m_BehaviorGenerator.printPedestrianAppearence();
-}
+// void BehaviorGen::callbackDistanceToPedestrian(const std_msgs::Float64& msg){
+//   double distance = msg.data;
+//   if(distance < m_distanceToPedestrianThreshold){
+//     m_PlanningParams.pedestrianAppearence = true;
+//   }
+//   else
+//   {
+//     m_PlanningParams.pedestrianAppearence = false;
+//   }
+//   m_BehaviorGenerator.UpdatePedestrianAppearence(m_PlanningParams.pedestrianAppearence);
+//   // m_BehaviorGenerator.printPedestrianAppearence();
+// }
 
 void BehaviorGen::callbackIntersectionCondition(const autoware_msgs::IntersectionCondition& msg){
   m_BehaviorGenerator.m_isInsideIntersection = msg.isIntersection;

@@ -535,11 +535,11 @@ BehaviorStateMachine* TrafficLightWaitStateII::GetNextState()
 
 BehaviorStateMachine* PedestrianState::GetNextState()
 {
-  if(m_pParams->pedestrianAppearence){
-    return FindBehaviorState(this->m_Behavior);
-  }
-  else
-    return FindBehaviorState(FORWARD_STATE);
+  // if(m_pParams->pedestrianAppearence){
+  //   return FindBehaviorState(this->m_Behavior);
+  // }
+  // else
+  return FindBehaviorState(FORWARD_STATE);
 }
 
 BehaviorStateMachine* IntersectionState::GetNextState()
