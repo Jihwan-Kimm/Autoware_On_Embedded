@@ -8,6 +8,7 @@ static ros::Subscriber sub;
 static ros::Publisher pub, pub_rubis;
 int is_topic_ready = 1;
 int profiling_routine = 0;
+int seq = 0;
 
 void points_cb(const sensor_msgs::PointCloud2ConstPtr& msg){
     sensor_msgs::PointCloud2 msg_with_intensity = *msg;
@@ -18,10 +19,13 @@ void points_cb(const sensor_msgs::PointCloud2ConstPtr& msg){
     pub.publish(msg_with_intensity);
 
     if(rubis::instance_mode_){
+        if(seq != msg_with_intensity.header.seq){
+            seq = msg_with_intensity.header.seq;
+            rubis::instance_ = rubis::instance_+1;
+        }
         rubis_msgs::PointCloud2 rubis_msg_with_intensity;
         rubis_msg_with_intensity.instance = rubis::instance_;
-        rubis_msg_with_intensity.msg = msg_with_intensity;
-        rubis::instance_ = rubis::instance_+1;
+        rubis_msg_with_intensity.msg = msg_with_intensity;        
         pub_rubis.publish(rubis_msg_with_intensity);
     }
 
@@ -44,7 +48,6 @@ void points_cb(const sensor_msgs::PointCloud2ConstPtr& msg){
                 break;
         }
     }
-    
 }
 
 int main(int argc, char** argv){
